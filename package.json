@@ -147,7 +147,9 @@
     "express": "^4.13.4",
     "fontfaceobserver": "^1.7.1",
     "history": "^2.1.2",
+    "html-loader": "^0.4.3",
     "immutable": "^3.8.1",
+    "markdown-loader": "^0.1.7",
     "reselect": "^2.5.1",
     "rx": "^4.1.0",
     "sanitize.css": "^3.3.0"

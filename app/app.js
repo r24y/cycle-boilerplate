@@ -21,6 +21,8 @@ import { makeDOMDriver, hJSX } from '@cycle/dom';
 import { makeHistoryDriver } from '@cycle/history';
 import { createHistory } from 'history';
 
+import README from '../README.md';
+
 // Import all the third party stuff
 import FontFaceObserver from 'fontfaceobserver';
 
@@ -36,7 +38,27 @@ openSansObserver.check().then(() => {
   document.body.classList.remove(styles.fontLoaded);
 });
 
+class HTMLWidget {
+  constructor(html) {
+    this.type = 'Widget';
+    this.html = html;
+  }
+  init() {
+    this.elem = document.createElement('DIV');
+    this.elem.innerHTML = this.html;
+    return this.elem;
+  }
+  update(previous, domNode) {
+    this.elem = domNode;
+    this.elem.innerHTML = this.httml;
+  }
+  destroy() {
+    this.elem = null;
+  }
+}
+
 function main(drivers) {
+  const node = new HTMLWidget(README);
   return {
     DOM: drivers.DOM.select('input').events('click')
       .map(ev => ev.target.checked)
@@ -45,6 +67,7 @@ function main(drivers) {
         <div>
           <input type="checkbox" /> Toggle me
           <p>{toggled ? 'ON' : 'off'}</p>
+          <div>{node}</div>
         </div>
       ),
     history: drivers.DOM.select('input').events('click')
