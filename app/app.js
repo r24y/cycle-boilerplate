@@ -1,3 +1,4 @@
+/** @jsx hJSX */
 /**
  * app.js
  *
@@ -5,13 +6,15 @@
  * code.
  */
 
-// Needed for redux-saga es6 generator support
 import 'babel-polyfill';
 
 // Load the favicon, the manifest.json file and the .htaccess file
 import 'file?name=[name].[ext]!./favicon.ico';
 import 'file?name=[name].[ext]!./manifest.json';
 import 'file?name=[name].[ext]!./.htaccess';
+
+import Cycle from '@cycle/core';
+import { makeDOMDriver, hJSX } from '@cycle/dom';
 
 // Import all the third party stuff
 import FontFaceObserver from 'fontfaceobserver';
@@ -27,6 +30,26 @@ openSansObserver.check().then(() => {
 }, () => {
   document.body.classList.remove(styles.fontLoaded);
 });
+
+function main(drivers) {
+  return {
+    DOM: drivers.DOM.select('input').events('click')
+      .map(ev => ev.target.checked)
+      .startWith(false)
+      .map(toggled =>
+        <div>
+          <input type="checkbox" /> Toggle me
+          <p>{toggled ? 'ON' : 'off'}</p>
+        </div>
+      ),
+  };
+}
+
+const drivers = {
+  DOM: makeDOMDriver('#app'),
+};
+
+Cycle.run(main, drivers);
 
 // Install ServiceWorker and AppCache in the end since
 // it's not most important operation and if main code fails,
