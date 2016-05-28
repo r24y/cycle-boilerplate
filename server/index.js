@@ -2,6 +2,7 @@
 
 const express = require('express');
 const logger = require('./logger');
+const ngrok = require('ngrok');
 
 const frontend = require('./middlewares/frontendMiddleware');
 const isDev = process.env.NODE_ENV !== 'production';
@@ -26,5 +27,16 @@ app.listen(port, (err) => {
     return logger.error(err);
   }
 
-  logger.appStarted(port);
+  // Connect to ngrok in dev mode
+  if (isDev) {
+    ngrok.connect(port, (innerErr, url) => {
+      if (innerErr) {
+        return logger.error(innerErr);
+      }
+
+      logger.appStarted(port, url);
+    });
+  } else {
+    logger.appStarted(port);
+  }
 });

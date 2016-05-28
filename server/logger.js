@@ -16,14 +16,20 @@ const logger = {
   },
 
   // Called when express.js app starts on given port w/o errors
-  appStarted: (port) => {
+  appStarted: (port, tunnelStarted) => {
     console.log('Server started ' + chalk.green('✓'));
+
+    // If the tunnel started, log that and the URL it's available at
+    if (tunnelStarted) {
+      console.log('Tunnel initialised ' + chalk.green('✓'));
+    }
 
     console.log(
       chalk.bold('\nAccess URLs:') +
       divider +
       '\nLocalhost: ' + chalk.magenta('http://localhost:' + port) +
       '\n      LAN: ' + chalk.magenta('http://' + ip.address() + ':' + port) +
+      (tunnelStarted ? '\n    Proxy: ' + chalk.magenta(tunnelStarted) : '') +
       divider,
       chalk.blue('\nPress ' + chalk.italic('CTRL-C') + ' to stop\n')
     );
