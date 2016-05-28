@@ -45,7 +45,9 @@
       "es2015-webpack",
       "stage-0"
     ],
-    "plugins": ["transform-react-jsx"],
+    "plugins": [
+      "transform-react-jsx"
+    ],
     "env": {
       "production": {
         "only": [
