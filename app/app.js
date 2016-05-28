@@ -13,8 +13,13 @@ import 'file?name=[name].[ext]!./favicon.ico';
 import 'file?name=[name].[ext]!./manifest.json';
 import 'file?name=[name].[ext]!./.htaccess';
 
+// Import Cycle.js libraries
 import Cycle from '@cycle/core';
 import { makeDOMDriver, hJSX } from '@cycle/dom';
+
+// Import history libraries
+import { makeHistoryDriver } from '@cycle/history';
+import { createHistory } from 'history';
 
 // Import all the third party stuff
 import FontFaceObserver from 'fontfaceobserver';
@@ -42,11 +47,17 @@ function main(drivers) {
           <p>{toggled ? 'ON' : 'off'}</p>
         </div>
       ),
+    history: drivers.DOM.select('input').events('click')
+      .map(ev => (ev.target.checked ? '/yes' : '/no'))
+      .map(pathname => ({ pathname }))
+      .startWith({ pathname: '/no' }),
   };
 }
 
+const history = createHistory();
 const drivers = {
   DOM: makeDOMDriver('#app'),
+  history: makeHistoryDriver(history),
 };
 
 Cycle.run(main, drivers);
