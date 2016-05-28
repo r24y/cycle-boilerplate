@@ -77,7 +77,6 @@ But wait... there's more!
 1. Clone this repo using `$ git clone https://github.com/mxstbr/react-boilerplate.git`
 1. Run `$ npm run setup` to install dependencies and clean the git repo.<br />
    *At this point you can run `$ npm start` to see the example app at `http://localhost:3000`.*
-1. Run `$ npm run clean` to delete the example app.
 
 Now you're ready to rumble!
 
