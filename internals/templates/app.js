@@ -1,79 +1,73 @@
+/** @jsx hJSX */
 /**
  * app.js
  *
  * This is the entry file for the application, only setup and boilerplate
  * code.
  */
+
 import 'babel-polyfill';
 
-// TODO constrain eslint import/no-unresolved rule to this block
-// Load the manifest.json file and the .htaccess file
-import 'file?name=[name].[ext]!./manifest.json';  // eslint-disable-line import/no-unresolved
-import 'file?name=[name].[ext]!./.htaccess';      // eslint-disable-line import/no-unresolved
+// Load the favicon, the manifest.json file and the .htaccess file
+import 'file?name=[name].[ext]!./favicon.ico';
+import 'file?name=[name].[ext]!./manifest.json';
+import 'file?name=[name].[ext]!./.htaccess';
+
+// Import Cycle.js libraries
+import Cycle from '@cycle/core';
+import { makeDOMDriver, hJSX } from '@cycle/dom';
+
+// Import history libraries
+import { makeHistoryDriver } from '@cycle/history';
+import { createHistory } from 'history';
+
+// Import what we need to display the README
+import README from '../README.md';
+import HtmlWidget from './widgets/HtmlWidget';
 
 // Import all the third party stuff
-import React from 'react';
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { applyRouterMiddleware, Router, browserHistory } from 'react-router';
-import { syncHistoryWithStore } from 'react-router-redux';
-import useScroll from 'react-router-scroll';
-import configureStore from './store';
+import FontFaceObserver from 'fontfaceobserver';
 
-// Import the CSS reset, which HtmlWebpackPlugin transfers to the build folder
-import 'sanitize.css/lib/sanitize.css';
+// Observe loading of Open Sans (to remove open sans, remove the <link> tag in
+// the index.html file and this observer)
+import styles from 'containers/App/styles.css';
+const openSansObserver = new FontFaceObserver('Open Sans', {});
 
-// Create redux store with history
-// this uses the singleton browserHistory provided by react-router
-// Optionally, this could be changed to leverage a created history
-// e.g. `const browserHistory = useRouterHistory(createBrowserHistory)();`
-const initialState = {};
-const store = configureStore(initialState, browserHistory);
-
-// Sync history and store, as the react-router-redux reducer
-// is under the non-default key ("routing"), selectLocationState
-// must be provided for resolving how to retrieve the "route" in the state
-import { selectLocationState } from 'containers/App/selectors';
-const history = syncHistoryWithStore(browserHistory, store, {
-  selectLocationState: selectLocationState(),
+// When Open Sans is loaded, add a font-family using Open Sans to the body
+openSansObserver.check().then(() => {
+  document.body.classList.add(styles.fontLoaded);
+}, () => {
+  document.body.classList.remove(styles.fontLoaded);
 });
 
-// Set up the router, wrapping all Routes in the App component
-import App from 'containers/App';
-import createRoutes from './routes';
-const rootRoute = {
-  component: App,
-  childRoutes: createRoutes(store),
+
+function main(drivers) {
+  const node = new HtmlWidget(README);
+  return {
+    DOM: drivers.DOM.select('input').events('click')
+      .map(ev => ev.target.checked)
+      .startWith(false)
+      .map(toggled =>
+        <div>
+          <input type="checkbox" /> Toggle me
+          <p>{toggled ? 'ON' : 'off'}</p>
+          <div>{node}</div>
+        </div>
+      ),
+    history: drivers.DOM.select('input').events('click')
+      .map(ev => (ev.target.checked ? '/yes' : '/no'))
+      .map(pathname => ({ pathname }))
+      .startWith({ pathname: '/no' }),
+  };
+}
+
+const history = createHistory();
+const drivers = {
+  DOM: makeDOMDriver('#app'),
+  history: makeHistoryDriver(history),
 };
 
-ReactDOM.render(
-  <Provider store={store}>
-    <Router
-      history={history}
-      routes={rootRoute}
-      render={
-        // Scroll to top when going to a new page, imitating default browser
-        // behaviour
-        applyRouterMiddleware(
-          useScroll(
-            (prevProps, props) => {
-              if (!prevProps || !props) {
-                return true;
-              }
-
-              if (prevProps.location.pathname !== props.location.pathname) {
-                return [0, 0];
-              }
-
-              return true;
-            }
-          )
-        )
-      }
-    />
-  </Provider>,
-  document.getElementById('app')
-);
+Cycle.run(main, drivers);
 
 // Install ServiceWorker and AppCache in the end since
 // it's not most important operation and if main code fails,
