@@ -10,7 +10,7 @@ export default class HtmlWidget {
   }
   update(previous, domNode) {
     this.elem = domNode;
-    this.elem.innerHTML = this.httml;
+    this.elem.innerHTML = this.html;
   }
   destroy() {
     this.elem = null;

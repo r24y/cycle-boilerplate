@@ -1,4 +1,3 @@
-/** @jsx hJSX */
 /**
  * app.js
  *
@@ -15,22 +14,21 @@ import 'file?name=[name].[ext]!./.htaccess';
 
 // Import Cycle.js libraries
 import Cycle from '@cycle/core';
-import { makeDOMDriver, hJSX } from '@cycle/dom';
+import { makeDOMDriver } from '@cycle/dom';
 
 // Import history libraries
 import { makeHistoryDriver } from '@cycle/history';
 import { createHistory } from 'history';
 
-// Import what we need to display the README
-import README from '../README.md';
-import HtmlWidget from './widgets/HtmlWidget';
+// Import the main component
+import main from './main';
 
 // Import all the third party stuff
 import FontFaceObserver from 'fontfaceobserver';
 
 // Observe loading of Open Sans (to remove open sans, remove the <link> tag in
 // the index.html file and this observer)
-import styles from 'containers/App/styles.css';
+import styles from './app.css';
 const openSansObserver = new FontFaceObserver('Open Sans', {});
 
 // When Open Sans is loaded, add a font-family using Open Sans to the body
@@ -39,29 +37,6 @@ openSansObserver.check().then(() => {
 }, () => {
   document.body.classList.remove(styles.fontLoaded);
 });
-
-
-function main(drivers) {
-  const click$ = drivers.DOM.select('input').events('click')
-    .map(ev => ev.target.checked);
-  const path$ = drivers.location.startWith(document.location)
-    .map(l => Boolean(l.pathname.match(/^\/yes/)));
-  const state$ = click$.merge(path$).distinctUntilChanged();
-  const node = new HtmlWidget(README);
-  return {
-    DOM: state$.map(toggled =>
-      <div>
-        <input type="checkbox" checked={toggled} /> Toggle me
-        <p>{toggled ? 'ON' : 'off'}</p>
-        <div>{node}</div>
-      </div>
-    ),
-    location: state$
-      .map(checked => (checked ? '/yes' : '/no'))
-      .map(pathname => ({ pathname }))
-      .startWith(document.location),
-  };
-}
 
 const history = createHistory();
 const drivers = {
