@@ -10,6 +10,12 @@ global.sinon = sinon;
 global.expect = chai.expect;
 global.should = chai.should();
 
+describe('First test', () => {
+  it('Should pass', () => {
+    chai.expect(1 + 1).to.equal(2);
+  });
+});
+
 // Include all .js files under `app`, except app.js, reducers.js, routes.js and
 // store.js. This is for isparta code coverage
 const context = require.context('../../app', true, /^^((?!(app|reducers|routes|store)).)*\.js$/);
